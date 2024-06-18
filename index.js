@@ -125,6 +125,21 @@ app.get('/empleados/:id', async (req, res) => {
   }
 });
 
+app.get('/empleadosn/nombre', async (req, res) => {
+  try {
+    const nombre = req.query.nombre;
+    if (!nombre) return res.status(400).json({ message: 'Nombre es requerido' });
+
+    // Busca en la base de datos utilizando una expresión regular insensible a mayúsculas y minúsculas
+    const empleados = await db.collection('Empleados').find({ nombre: new RegExp(nombre, 'i') }).toArray();
+    if (empleados.length === 0) return res.status(404).json({ message: 'Empleado no encontrado' });
+
+    res.json(empleados);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 // PATCH - Actualizar un empleado por su ID
 app.patch('/empleados/:id', async (req, res) => {
   try {
@@ -565,7 +580,7 @@ app.post('/tiendas', async (req, res) => {
 // GET - Obtener todas las tiendas
 app.get('/tiendas', async (req, res) => {
   try {
-    const tiendas = await db.collection('Tienda').find().toArray();
+    const tiendas = await db.collection('Tiendas').find().toArray();
     res.json(tiendas);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -575,7 +590,7 @@ app.get('/tiendas', async (req, res) => {
 // GET - Obtener una tienda por su ID
 app.get('/tiendas/:id', async (req, res) => {
   try {
-    const tienda = await db.collection('Tienda').findOne({ _id: new ObjectId(req.params.id) });
+    const tienda = await db.collection('Tiendas').findOne({ _id: new ObjectId(req.params.id) });
     if (!tienda) return res.status(404).json({ message: 'Tienda no encontrada' });
     res.json(tienda);
   } catch (error) {
@@ -586,7 +601,7 @@ app.get('/tiendas/:id', async (req, res) => {
 // PATCH - Actualizar una tienda por su ID
 app.patch('/tiendas/:id', async (req, res) => {
   try {
-    const result = await db.collection('Tienda').updateOne(
+    const result = await db.collection('Tiendas').updateOne(
       { _id: new ObjectId(req.params.id) },
       { $set: req.body }
     );
@@ -600,7 +615,7 @@ app.patch('/tiendas/:id', async (req, res) => {
 // DELETE - Eliminar una tienda por su ID
 app.delete('/tiendas/:id', async (req, res) => {
   try {
-    const result = await db.collection('Tienda').deleteOne({ _id: new ObjectId(req.params.id) });
+    const result = await db.collection('Tiendas').deleteOne({ _id: new ObjectId(req.params.id) });
     if (result.deletedCount === 0) return res.status(404).json({ message: 'Tienda no encontrada' });
     res.json({ message: 'Tienda eliminada' });
   } catch (error) {
@@ -612,7 +627,7 @@ app.delete('/tiendas/:id', async (req, res) => {
 // POST - Crear un nuevo puesto
 app.post('/puestos', async (req, res) => {
   try {
-    const result = await db.collection('Puesto').insertOne(req.body);
+    const result = await db.collection('Puestos').insertOne(req.body);
     res.status(201).json(result);
   } catch (error) {
     res.status(400).json({ message: error.message });
